@@ -1,6 +1,6 @@
 package com.example.simplerestapi;
 
-import java.io.Serializable;
+import org.springframework.hateoas.RepresentationModel;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,13 +11,11 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
-public class User implements Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class User extends RepresentationModel<User> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+  private Long id;
 
   @Column(name = "first_name", nullable = false)
   private String firstName;
@@ -31,12 +29,8 @@ public class User implements Serializable {
   public User() {
   }
 
-  public long getId() {
+  public Long getId() {
     return id;
-  }
-
-  public void setId(long id) {
-    this.id = id;
   }
 
   public String getFirstName() {
@@ -74,8 +68,8 @@ public class User implements Serializable {
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
-    result = prime * result + (int) (id ^ (id >>> 32));
+    int result = super.hashCode();
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
     result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
     result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
     result = prime * result + ((email == null) ? 0 : email.hashCode());
@@ -87,12 +81,15 @@ public class User implements Serializable {
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (obj == null)
+    if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
     User other = (User) obj;
-    if (id != other.id)
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
       return false;
     if (firstName == null) {
       if (other.firstName != null)
@@ -116,5 +113,4 @@ public class User implements Serializable {
       return false;
     return true;
   }
-
 }

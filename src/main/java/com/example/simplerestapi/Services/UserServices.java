@@ -1,11 +1,15 @@
 package com.example.simplerestapi.Services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.simplerestapi.User;
+import com.example.simplerestapi.Controller.ApiController;
 import com.example.simplerestapi.Repository.UserRepository;
 
 @Service
@@ -15,7 +19,10 @@ public class UserServices {
   UserRepository repository;
 
   public List<User> findAll() {
-    return repository.findAll();
+    var users = repository.findAll();
+
+    users.stream().forEach(p -> p.add(linkTo(methodOn(ApiController.class).findById(p.getId())).withSelfRel()));
+    return users;
   }
 
   public User findById(Long id) {
