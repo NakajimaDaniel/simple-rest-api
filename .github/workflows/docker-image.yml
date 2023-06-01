@@ -25,6 +25,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1.1.1
         with:
           version: latest
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: 'cedar-abacus-388522'
 
       - name: Configure Kubernetes environment
