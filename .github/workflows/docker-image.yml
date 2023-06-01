@@ -1,30 +1,38 @@
-name: Docker Image CI
-
+name: CI/CD
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+    branches:
+      - main
 jobs:
-  build-image:
-    name: Build Image
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-          
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+
+      - name: Build and push Docker images
+        run: |
+          docker-compose build
+          docker-compose push
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.4.0
         with:
-          context: .
-          push: true
-          tags: danielnakajima/custom-maven:latest
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
-      - name: Deploy using Docker Compose
-        uses: docker/compose-action@v1
-        with:
-          compose-file: docker-compose.yaml
-          
+          version: '340.0.0'
+
+      - name: Configure Kubernetes environment
+        run: |
+          gcloud container clusters get-credentials simple-rest-cluster-1 --region us-central1 
+
+      - name: Deploy to GKE
+        run: |
+          kubectl apply -f path/to/your/kubernetes/manifests
+
+      - name: Run tests
+        run: |
+          # Run your tests here
+
+      - name: Clean up
+        run: |
+          # Clean up resources or perform any necessary post-deployment tasks
+
