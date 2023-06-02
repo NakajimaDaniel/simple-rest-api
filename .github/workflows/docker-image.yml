@@ -1,0 +1,52 @@
+name: CI/CD
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Build and push Docker images
+        run: |
+          docker-compose build
+          docker-compose push
+          
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1.1.1
+        with:
+          version: latest
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: 'cedar-abacus-388522'
+          export_default_credentials: true
+
+      - name: Configure Kubernetes environment
+        run: |
+          gcloud container clusters get-credentials simple-rest-cluster-1 --region us-central1 
+
+      - name: Deploy to GKE
+        run: |
+          kubectl apply -f db-deployment.yaml,db-service.yaml,simple-rest-api-claim0-persistentvolumeclaim.yaml,simple-rest-api-deployment.yaml,simple-rest-api-service.yaml
+
+      - name: Run tests
+        run: |
+          # Run your tests here
+
+      - name: Clean up
+        run: |
+          # Clean up resources or perform any necessary post-deployment tasks
+
