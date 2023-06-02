@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: simple-rest-api
+  name: simple-rest-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: simple-rest-api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: simple-rest-api
+    spec:
+      containers:
+        - args:
+            - mvn
+            - spring-boot:run
+          env:
+            - name: SPRING.DATASOURCE.PASSWORD
+              value: admin123
+            - name: SPRING.DATASOURCE.URL
+              value: jdbc:mariadb://db:3308/simplerestapi?createDatabaseIfNotExist=true&&user=root&password=admin123
+            - name: SPRING.DATASOURCE.USERNAME
+              value: root
+            - name: TZ
+              value: America/Sao_Paulo
+          image: danielnakajima/simple-rest-api
+          name: simple-rest-api
+          ports:
+            - name: custom-port1
+              containerPort: 8080
+            - name: custom-port2
+              containerPort: 35729
+            - name: custom-port3
+              containerPort: 5005
+          resources: {}
+          volumeMounts:
+            - mountPath: /usr/src/mymaven
+              name: simple-rest-api-claim0
+          workingDir: /usr/src/mymaven
+      restartPolicy: Always
+      volumes:
+        - name: simple-rest-api-claim0
+          persistentVolumeClaim:
+            claimName: simple-rest-api-claim0
+status: {}
