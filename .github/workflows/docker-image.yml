@@ -40,7 +40,7 @@ jobs:
 
       - name: Deploy to GKE
         run: |
-          kubectl apply -f path/to/your/kubernetes/manifests
+          kubectl apply -f db-deployment.yaml,db-service.yaml,simple-rest-api-claim0-persistentvolumeclaim.yaml,simple-rest-api-deployment.yaml,simple-rest-api-service.yaml
 
       - name: Run tests
         run: |
